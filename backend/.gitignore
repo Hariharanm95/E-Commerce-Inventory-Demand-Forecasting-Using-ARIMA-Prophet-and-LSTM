@@ -1,0 +1,45 @@
+# Node.js specific
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug/
+
+# Environment variables
+.env
+
+# Log files
+*.log
+debug.log
+
+# IDE specific files
+.idea/
+.vscode/
+*.suo
+*.njsproj
+*.sln
+
+# Dependency management
+package-lock.json
+
+# Compiled code
+build/
+dist/
+*.pyc # ignore python compiled files
+__pycache__/
+
+# Testing
+coverage/
+test_results/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Other
+*.swp
+*.swo
+*~
+\#*\#
+
+#Optional
+# /ai_models/trained_models/* # if you do not want to commit trained models

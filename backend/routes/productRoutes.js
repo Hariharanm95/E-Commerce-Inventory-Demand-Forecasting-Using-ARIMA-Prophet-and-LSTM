@@ -1,22 +1,21 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const productController = require('../controllers/productController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-const {
-    getProducts,
-    getProduct,
-    createProduct,
-    updateProduct,
-    deleteProduct
-} = require('../controllers/productControllers.js')
+// GET /products: Get all products (with optional filters: category, price range, sort options)
+router.get('/', productController.getProducts);
 
-router.post('/', createProduct)
+// GET /products/:id: Get a specific product by ID
+router.get('/:id', productController.getProductById);
 
-router.get('/', getProducts)
+// POST /products: (Admin) Add a new product (requires admin auth)
+router.post('/', authMiddleware.protect, authMiddleware.admin, productController.addProduct);
 
-router.get('/:id', getProduct)
+// PUT /products/:id: (Admin) Update a product by ID (requires admin auth)
+router.put('/:id', authMiddleware.protect, authMiddleware.admin, productController.updateProduct);
 
-router.put('/:id', updateProduct)
-
-router.delete('/:id', deleteProduct)
+// DELETE /products/:id: (Admin) Delete a product by ID (requires admin auth)
+router.delete('/:id', authMiddleware.protect, authMiddleware.admin, productController.deleteProduct);
 
 module.exports = router;
