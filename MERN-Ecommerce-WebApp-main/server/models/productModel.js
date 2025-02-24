@@ -19,7 +19,7 @@ const productSchema = mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    default: "https://i.ibb.co/R62DvRM/woocommerce-placeholder.png",
+    default: "/uploads/default.png",
   },
   price: {
     type: Number,

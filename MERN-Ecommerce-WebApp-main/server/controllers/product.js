@@ -142,60 +142,48 @@ const updateProduct = async (req, res) => {
 //@desc   Delete a product
 //@route  DELETE /api/v1/products
 //@access Private
+const fs = require("fs");
+const path = require("path");
+
 const deleteProduct = async (req, res) => {
-  const { id: productID } = req.params;
-  try {
-    const deletedProduct = await Product.findOneAndDelete({ _id: productID });
-    console.log("deleted product", deletedProduct);
+const { id: productID } = req.params;
+try {
+  const deletedProduct = await Product.findOneAndDelete({ _id: productID });
 
-    if (!deletedProduct) {
-      return res
-        .status(404)
-        .json({ status: "error", error: `No Product with id ${productID}` });
-    }
-
-    //Deleting the file from S3 bucket
-    const imageUrl = deletedProduct.imageUrl;
-    const fileKey = imageUrl.replace("https://mern-ecom.s3.amazonaws.com/", "");
-    
-    deleteImage(fileKey);
-
-    res.status(200).json({ status: "success", message: "Product deleted" });
-  } catch (error) {
-    res.status(500).json({ status: "error", error: "Something went wrong" });
+  if (!deletedProduct) {
+    return res
+      .status(404)
+      .json({ status: "error", error: `No Product with id ${productID}` });
   }
+
+  // Remove the file from local storage
+  const imagePath = path.join(__dirname, "..", deletedProduct.imageUrl);
+  fs.unlink(imagePath, (err) => {
+    if (err) {
+      console.log("Error deleting file:", err);
+    }
+  });
+
+  res.status(200).json({ status: "success", message: "Product deleted" });
+} catch (error) {
+  res.status(500).json({ status: "error", error: "Something went wrong" });
+}
 };
+
 
 
 const uploadImage = async (req, res) => {
   try {
-    console.log("req.body", req.body);
-    console.log("req.file", req.file);
-    req.file.buffer;
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-    const randomKeyName = (bytes = 16) =>
-      crypto.randomBytes(bytes).toString("hex");
+    const imageURL = `/uploads/${req.file.filename}`;
 
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: randomKeyName(),
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-    };
-
-    s3.upload(params, (err, data) => {
-      if (err) {
-        console.log("Error occurred while trying to upload to S3 bucket", err);
-        return res.status(500).json({ message: "upload failed" });
-      }
-      const imageURL = `${process.env.CLOUDFRONT_DOMAIN}${data.key}`;
-      return res
-        .status(200)
-        .json({ message: "success", imageURL: imageURL });
-    });
+    res.status(200).json({ message: "success", imageURL: imageURL });
   } catch (error) {
     console.log(error);
-    return res.send(400).json({ status: "error", error: error });
+    return res.status(500).json({ status: "error", error: "Upload failed" });
   }
 };
 

@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const connectDB = require("./config/connect");
@@ -6,6 +7,12 @@ const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+const fs = require("fs");
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
 
 //IMPORTING ROUTES
 const userRoutes = require("./routes/userRoutes");
@@ -15,7 +22,18 @@ const authRoutes = require("./routes/authRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 
+// if (!process.env.MONGODB_URI) {
+//   console.error('MongoDB URI is missing.  Make sure MONGODB_URI is set in your environment.');
+//   process.exit(1); // Exit the server if the URI is missing
+// }
+
+console.log("Mongo URI:", process.env.MONGO_URI);
+
 connectDB(process.env.MONGO_URI);
+
+
+app.use('/uploads', express.static('uploads'));
+
 
 //MIDDLEWARE
 app.use(cors(corsOptions));
