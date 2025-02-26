@@ -52,7 +52,7 @@ const Cart = ({ setShowCart }) => {
         <div className={classes.cartFooter}>
           <div className={classes.total}>
             <p>Total</p>
-            <p>${cart.total} USD</p>
+            <p>₹{cart.total} INR</p>
           </div>
           <div className={classes.btns}>
             {cart.products.length > 0 ? (

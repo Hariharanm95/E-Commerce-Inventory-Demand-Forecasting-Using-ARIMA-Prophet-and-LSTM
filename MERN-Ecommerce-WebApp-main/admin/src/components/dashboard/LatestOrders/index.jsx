@@ -25,7 +25,7 @@ const LatestOrders = ({ allOrders }) => {
             return (
               <tr key={order?._id}>
                 <td className={classes.orderId}>{order._id}</td>
-                <td className={classes.total}>${order.total}</td>
+                <td className={classes.total}>₹{order.total}</td>
                 <td className={classes.status}>
                   <span
                     style={{

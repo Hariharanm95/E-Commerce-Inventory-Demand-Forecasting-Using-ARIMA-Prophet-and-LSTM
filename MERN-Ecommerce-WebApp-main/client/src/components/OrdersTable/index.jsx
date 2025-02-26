@@ -34,9 +34,9 @@ const OrdersTable = ({ cart }) => {
                       <p>{product?.name}</p>
                     </div>
                   </td>
-                  <td>${product?.price}</td>
+                  <td>₹{product?.price}</td>
                   <td>{product?.quantity}</td>
-                  <td>${product?.price * product?.quantity}</td>
+                  <td>₹{product?.price * product?.quantity}</td>
                   <td>
                     <div className={classes.deleteItem}>
                       <img

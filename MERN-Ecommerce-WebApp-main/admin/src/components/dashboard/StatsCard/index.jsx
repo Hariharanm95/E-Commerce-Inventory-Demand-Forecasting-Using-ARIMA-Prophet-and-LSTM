@@ -35,7 +35,7 @@ const StatsCard = ({ allOrders, allUsers, allProducts }) => {
       <div className={classes.stats}>
         <div className={classes.data}>
           <p className={classes.title}>Revenue</p>
-          <h3 className={classes.count}>${totalRevenue}</h3>
+          <h3 className={classes.count}>₹{totalRevenue}</h3>
         </div>
         <div className={classes.iconWrapper}>
           <img src={revenueIcon} alt="total revenue" />

@@ -6,13 +6,18 @@ import applePay from "../../assets/images/footer/applePay.png";
 import googlePay from "../../assets/images/footer/googlePay.png";
 import mastercard from "../../assets/images/footer/mastercard.png";
 import americanExpress from "../../assets/images/footer/americanExpress.png";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className={classes.footer}>
       <div className={classes.footerWrapper}>
         <div className={classes.logoColumn}>
-          <img src={logo} alt="logo" className={classes.logo} />
+          {/* <img src={logo} alt="logo" className={classes.logo} /> */}
+                    <NavLink to="/" style={{ textDecoration: "none", color: "black" }}>
+                      {/* <img src={logo} alt="logo" /> */}
+                      <h1 style={{ fontFamily: "monospace" }}>Exclusive</h1>
+                    </NavLink>
           <p>
             Sign up to save and know about the latest tech <br /> exclusive
             offers , events and more.

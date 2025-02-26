@@ -72,7 +72,7 @@ const OrderSummary = ({ setCheckoutStep, checkoutStep, cart, order }) => {
         <div className={classes.cardHeader}>Order Summary</div>
         <div className={classes.detail}>
           <span className={classes.label}>Sub Total</span>
-          <span className={classes.value}>${cart?.total}</span>
+          <span className={classes.value}>₹{cart?.total}</span>
         </div>
         <div className={classes.detail}>
           <span className={classes.label}>Discount</span>
@@ -85,7 +85,7 @@ const OrderSummary = ({ setCheckoutStep, checkoutStep, cart, order }) => {
         <div className={classes.divider}></div>
         <div className={classes.total}>
           <span>Total</span>
-          <span>${cart?.total}</span>
+          <span>₹{cart?.total}</span>
         </div>
       </div>
       {checkoutStep === 1 && (

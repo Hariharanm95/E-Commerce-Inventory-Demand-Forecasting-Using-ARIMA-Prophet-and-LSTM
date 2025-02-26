@@ -20,8 +20,9 @@ const Header = () => {
     <header className={classes.header}>
       <div className={classes.container}>
         <div className={classes.logo}>
-          <NavLink to="/">
-            <img src={logo} alt="logo" />
+          <NavLink to="/" style={{ textDecoration: "none", color: "black" }}>
+            {/* <img src={logo} alt="logo" /> */}
+            <h1 style={{ fontFamily: "monospace" }}>Exclusive</h1>
           </NavLink>
         </div>
         <nav>

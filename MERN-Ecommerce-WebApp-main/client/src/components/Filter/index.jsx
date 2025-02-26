@@ -113,7 +113,7 @@ const Filter = ({ filters, setFilters, setCategories, categories }) => {
               onChange={handleChange}
               id="priceLvl1"
             />
-            <label htmlFor="priceLvl1">$40 - $500</label>
+            <label htmlFor="priceLvl1">₹40 - ₹500</label>
           </li>
           <li>
             <input
@@ -124,7 +124,7 @@ const Filter = ({ filters, setFilters, setCategories, categories }) => {
               onChange={handleChange}
               id="priceLvl2"
             />
-            <label htmlFor="priceLvl2">$500 - $1000</label>
+            <label htmlFor="priceLvl2">₹500 - ₹1000</label>
           </li>
           <li>
             <input
@@ -135,7 +135,7 @@ const Filter = ({ filters, setFilters, setCategories, categories }) => {
               onChange={handleChange}
               id="priceLvl3"
             />
-            <label htmlFor="priceLvl3">$1000 - $2000</label>
+            <label htmlFor="priceLvl3">₹1000 - ₹2000</label>
           </li>
           <li>
             <input
@@ -146,7 +146,7 @@ const Filter = ({ filters, setFilters, setCategories, categories }) => {
               onChange={handleChange}
               id="priceLvl4"
             />
-            <label htmlFor="priceLvl4">$2000 - $3000</label>
+            <label htmlFor="priceLvl4">₹2000 - ₹3000</label>
           </li>
         </ul>
       </div>

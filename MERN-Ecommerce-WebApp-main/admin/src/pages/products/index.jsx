@@ -61,7 +61,7 @@ const Products = () => {
                 <tr key={index}>
                   <td className={classes.name}>
                     <div className={classes.productImage}>
-                      <img src={item.imageUrl} alt="product" />
+                      {/* <img src={item.imageUrl} alt="product" /> */}
                     </div>
                     <div className={classes.productName}>{item.name}</div>
                   </td>
