@@ -1,82 +1,32 @@
 import pandas as pd
 from prophet import Prophet
-import os
-import pickle
+import matplotlib.pyplot as plt
 
-def train_prophet_model(data, model_path):
-   """
-    Trains the Prophet model.
+# Load the dataset
+df = pd.read_csv('/content/sample_data/sales.csv', parse_dates=['date'])
 
-    Parameters:
-        data (pd.DataFrame): Time series data with 'ds' (datetime) and 'y' (value) columns.
-        model_path (str): Path to save the trained model.
+# Filter data for a specific product, e.g., 'Widget A'
+product_data = df[df['product_name'] == 'Widget A']
 
-    Returns:
-        prophet.forecaster.Prophet: Trained Prophet model.
-    """
-   try:
-        model = Prophet()
-        model.fit(data)
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        with open(model_path, 'wb') as file:
-           pickle.dump(model, file)
-        print('Prophet model saved at: ',model_path)
-        return model
-   except Exception as e:
-         print(f"Error during prophet model training: {e}")
-         return None
+# Aggregate daily sales
+daily_sales = product_data.groupby('date').agg({'units_sold': 'sum'}).reset_index()
 
+# Rename columns to fit Prophet's requirements
+daily_sales.rename(columns={'date': 'ds', 'units_sold': 'y'}, inplace=True)
 
-def load_prophet_model(model_path):
-  """
-   Loads a pre-trained prophet model.
-   Parameters:
-       model_path (str): Path to the trained model.
+# Initialize and fit the Prophet model
+model = Prophet()
+model.fit(daily_sales)
 
-    Returns:
-        prophet.forecaster.Prophet: Trained Prophet model or None if model not found.
-   """
-  if not os.path.exists(model_path):
-        return None
-  with open(model_path, 'rb') as file:
-       model = pickle.load(file)
-  return model
+# Create a dataframe to hold predictions for the next 10 days
+future = model.make_future_dataframe(periods=10)
 
-
-def predict(model, future_dates):
-    """
-    Make predictions using a trained Prophet model.
-
-    Parameters:
-        model (prophet.forecaster.Prophet): Trained Prophet model.
-        future_dates (pd.DataFrame): DataFrame containing future dates for predictions.
-
-    Returns:
-        np.array: Predicted values.
-    """
-    try:
-        forecast = model.predict(future_dates)
-        return forecast[['ds', 'yhat']]
-    except Exception as e:
-         print(f"Error during prophet prediction: {e}")
-         return None
-
-if __name__ == '__main__':
-     # Example Usage:
-    example_data = pd.DataFrame({
-        'ds': pd.to_datetime(pd.date_range('2024-01-01', periods=100)),
-        'y': np.random.rand(100)
-    })
-    model_path = "trained_models/prophet_model_example"
-    trained_model = train_prophet_model(example_data, model_path)
-
-    if trained_model:
-       print("Prophet Model trained Successfully")
-      # Test model
-       future_dates = pd.DataFrame({
-           'ds': pd.to_datetime(pd.date_range('2024-04-10', periods=5))
-       })
-       predicted = predict(trained_model, future_dates)
-       print('Prediction result:', predicted)
-    else:
-         print("Prophet Model training failed")
+# Predict future sales
+forecast = model.predict(future)
+print(forecast)
+# Plot the forecast
+fig = model.plot(forecast)
+plt.title('Sales Forecast for Widget A')
+plt.xlabel('Date')
+plt.ylabel('Units Sold')
+plt.show()
