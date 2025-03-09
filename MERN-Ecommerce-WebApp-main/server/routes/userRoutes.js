@@ -12,10 +12,10 @@ const {
   verifyTokenAndAdmin,
 } = require("../middleware/verifyToken");
 
-router.patch("/update", verifyToken, updateUser);
-router.patch("/:id", verifyToken, updatePassword);
 router.get("/", verifyTokenAndAdmin, getAllUsers);
 router.get("/me", verifyToken, getMe);
+router.patch("/:id", verifyToken, updatePassword);
 router.delete("/:id", verifyTokenAndAdmin, deleteUser);
+router.patch("/update", verifyToken, updateUser);
 
 module.exports = router;

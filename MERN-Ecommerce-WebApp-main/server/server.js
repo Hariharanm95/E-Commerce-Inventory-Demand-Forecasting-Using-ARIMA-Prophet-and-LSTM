@@ -22,18 +22,11 @@ const authRoutes = require("./routes/authRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 
-// if (!process.env.MONGODB_URI) {
-//   console.error('MongoDB URI is missing.  Make sure MONGODB_URI is set in your environment.');
-//   process.exit(1); // Exit the server if the URI is missing
-// }
-
 console.log("Mongo URI:", process.env.MONGO_URI);
 
 connectDB(process.env.MONGO_URI);
 
-
 app.use('/uploads', express.static('uploads'));
-
 
 //MIDDLEWARE
 app.use(cors(corsOptions));
@@ -51,9 +44,7 @@ const PORT = process.env.PORT || 5000;
 
 //SERVE STATIC ASSETS IF IN PRODUCTION
 if (process.env.NODE_ENV === "production") {
-  //SET STATIC FOLDER
   app.use(express.static("client/build"));
-
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../client/build/index.html"));
   });

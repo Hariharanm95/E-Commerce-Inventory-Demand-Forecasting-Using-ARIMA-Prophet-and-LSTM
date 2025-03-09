@@ -67,7 +67,7 @@ const Products = () => {
                   </td>
                   <td>{moment(item.createdAt).format("LL")}</td>
                   <td>{item.quantity}</td>
-                  <td>${item.price}</td>
+                  <td>₹{item.price}</td>
                   <td>
                     <div className={classes.actionButtons}>
                       <img
