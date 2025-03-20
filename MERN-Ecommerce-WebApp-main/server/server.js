@@ -21,6 +21,8 @@ const cartRoutes = require("./routes/cartRoutes");
 const authRoutes = require("./routes/authRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const addressRoutes = require("./routes/addressRoutes");
+const forecastRoutes = require('./routes/forecastRoutes'); // Import the forecast routes
+
 
 console.log("Mongo URI:", process.env.MONGO_URI);
 
@@ -39,6 +41,8 @@ app.use("/api/v1/address", addressRoutes);
 app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/cart", cartRoutes);
+app.use('/api/v1/forecast', forecastRoutes); // Use the forecast routes
+
 
 const PORT = process.env.PORT || 5000;
 
