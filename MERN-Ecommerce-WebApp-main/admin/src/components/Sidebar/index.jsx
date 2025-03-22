@@ -24,9 +24,7 @@ const Sidebar = () => {
         <div className={classes.adminName}>
           <p>Welcome back</p>
           <p>
-            {user.currentUser?.user.firstName +
-              " " +
-              user.currentUser?.user.lastName}
+            {user.currentUser?.user.firstName}
           </p>
         </div>
       </div>

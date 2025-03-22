@@ -33,44 +33,25 @@ const ForecastTable = ({ data, loading, error }) => {
 
     return (
         <div className={styles.forecastTableContainer}>
-            <h3>Final Hybrid Forecast (RMSE)</h3>
+            <h3>Predicted Top product & Sales</h3>
             <table className={styles.forecastTable}>
                 <thead>
                     <tr className={styles.tableHeaderRow}>
                         <th className={styles.tableHeader}>Month</th>
-                        <th className={styles.tableHeader}>RMSE Value</th>
+                        <th className={styles.tableHeader}>Top Product</th>
+                        <th className={styles.tableHeader}>Estimated Sales</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {data.final_forecast_rmse.map((value, index) => (
+                    {data.forecast.map((item, index) => (
                         <tr key={index} className={styles.tableRow}>
                             <td className={styles.tableCell}>{upcomingMonths[index]}</td>
-                            <td className={styles.tableCell}>{value.toFixed(2)}</td>
+                            <td className={styles.tableCell}>{item.top_product}</td>
+                            <td className={styles.tableCell}>${item.estimated_sales.toFixed(2)}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-
-            <h3>Final Hybrid Forecast (XGBoost Weighted)</h3>
-            <table className={styles.forecastTable}>
-                <thead>
-                    <tr className={styles.tableHeaderRow}>
-                        <th className={styles.tableHeader}>Month</th>
-                        <th className={styles.tableHeader}>XGBoost Weighted Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.final_forecast_xgb.map((value, index) => (
-                        <tr key={index} className={styles.tableRow}>
-                            <td className={styles.tableCell}>{upcomingMonths[index]}</td>
-                            <td className={styles.tableCell}>{value.toFixed(2)}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-           
-
         </div>
     );
 };

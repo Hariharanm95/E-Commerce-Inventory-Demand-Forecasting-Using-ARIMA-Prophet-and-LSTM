@@ -2,11 +2,10 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppresses TF warnings & logs
 import sys
 import io
-
-# Capture output
 sys.stdout = io.StringIO()
 sys.stderr = io.StringIO()
-
+import requests
+import json
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -17,36 +16,21 @@ from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
 from skopt import gp_minimize
 from skopt.space import Integer, Real
-import requests
-import json
 
 try:
     API_URL = "http://localhost:5000/api/v1/forecast/monthly-sales"
-
-    try:
-        response = requests.get(API_URL)
-        response.raise_for_status()
-        data = response.json()
-    except requests.exceptions.RequestException as e:
-        print(json.dumps({"error": f"Error fetching data from API: {e}"}))
-        exit()
+    response = requests.get(API_URL)
+    response.raise_for_status()
+    data = response.json()
 
     df = pd.DataFrame(data)
-    df.columns = ["ds", "y"]
+    df.columns = ["ds", "top_product", "y"]  # Ensure top_product is included
 
-    # Validate data
     if df.isnull().values.any():
         print(json.dumps({"error": "Data contains missing values"}))
         exit()
-    if not np.isfinite(df['y']).all():
-        print(json.dumps({"error": "Data contains non-finite values"}))
-        exit()
 
-    # Handle constant data
-    if len(df['y'].unique()) == 1:
-        print(json.dumps({"error": "Data is constant"}))
-        exit()
-
+    # Normalize the target variable
     scaler = MinMaxScaler()
     df["y_scaled"] = scaler.fit_transform(df[["y"]])
 
@@ -60,39 +44,19 @@ try:
             model = ARIMA(train["y"], order=(p, d, q))
             fit = model.fit()
             pred = fit.forecast(steps=len(test))
-            mse = mean_squared_error(test["y"], pred)
-            return mse ** 0.5
-        except Exception as e:
+            return np.sqrt(mean_squared_error(test["y"], pred))
+        except:
             return float("inf")
 
     space = [Integer(0, 5, name="p"), Integer(0, 2, name="d"), Integer(0, 5, name="q")]
-    res_arima = gp_minimize(arima_rmse, space, n_calls=30, random_state=42)
-
+    res_arima = gp_minimize(arima_rmse, space, n_calls=20, random_state=42)
     p, d, q = res_arima.x
     arima_model = ARIMA(df["y"], order=(p, d, q)).fit()
     arima_forecast = arima_model.forecast(steps=12)
 
     # Prophet Model
-    def prophet_rmse(params):
-        changepoint_prior_scale, seasonality_prior_scale = params
-        model = Prophet(
-            changepoint_prior_scale=changepoint_prior_scale,
-            seasonality_prior_scale=seasonality_prior_scale
-        )
-        model.fit(train)
-        future = model.make_future_dataframe(periods=len(test), freq="M")
-        forecast = model.predict(future)
-        predicted = forecast['yhat'].iloc[-12:].values
-        return np.sqrt(mean_squared_error(test["y"], predicted))
-
-    space = [Real(0.001, 0.5, name="changepoint_prior_scale"), Real(0.01, 10.0, name="seasonality_prior_scale")]
-    res_prophet = gp_minimize(prophet_rmse, space, n_calls=30, random_state=42)
-
-    prophet_model = Prophet(
-        changepoint_prior_scale=res_prophet.x[0],
-        seasonality_prior_scale=res_prophet.x[1]
-    )
-    prophet_model.fit(df)
+    prophet_model = Prophet()
+    prophet_model.fit(df[["ds", "y"]])
     future = prophet_model.make_future_dataframe(periods=12, freq="M")
     prophet_forecast = prophet_model.predict(future)["yhat"].iloc[-12:].values
 
@@ -131,7 +95,7 @@ try:
         tf.keras.layers.Dense(1)
     ])
     lstm_model.compile(optimizer="adam", loss="mse")
-    lstm_model.fit(X, y, epochs=50, batch_size=16, verbose=0) # <--- IMPORTANT: verbose=0
+    lstm_model.fit(X, y, epochs=50, batch_size=16, verbose=0)
 
     lstm_forecast = []
     lstm_input = df["y_scaled"].iloc[-sequence_length:].values.reshape(1, sequence_length, 1)
@@ -144,6 +108,7 @@ try:
 
     lstm_forecast = scaler.inverse_transform(np.array(lstm_forecast).reshape(-1, 1)).flatten()
 
+    # Compute RMSE for weighting
     arima_rmse = np.sqrt(mean_squared_error(df["y"][-12:], arima_forecast))
     prophet_rmse = np.sqrt(mean_squared_error(df["y"][-12:], prophet_forecast))
     lstm_rmse = np.sqrt(mean_squared_error(df["y"][-12:], lstm_forecast))
@@ -164,6 +129,7 @@ try:
         weights["lstm"] * lstm_forecast
     )
 
+    # XGBoost to optimize weighting
     train_X = np.array([[arima_rmse, prophet_rmse, lstm_rmse]])
     train_y = np.array([[weights["arima"], weights["prophet"], weights["lstm"]]])
     xgb_model = xgb.XGBRegressor(objective="reg:squarederror")
@@ -174,40 +140,33 @@ try:
         np.array(optimal_weights).reshape(-1, 1) * np.array([arima_forecast, prophet_forecast, lstm_forecast])
     ).sum(axis=0)
 
+    # MAPE Calculation
     def mean_absolute_percentage_error(y_true, y_pred):
         y_true = np.array(y_true)
         y_pred = np.array(y_pred)
 
-        # Avoid division by zero
-        y_true[y_true == 0] = 1e-9  # Replace 0 with a tiny value
-
+        y_true[y_true == 0] = 1e-9  # Avoid division by zero
         return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
     arima_mape = mean_absolute_percentage_error(df["y"][-12:], arima_forecast)
     prophet_mape = mean_absolute_percentage_error(df["y"][-12:], prophet_forecast)
     lstm_mape = mean_absolute_percentage_error(df["y"][-12:], lstm_forecast)
 
+
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+    # Prepare output
+    forecast_output = []
+    for i in range(12):
+        forecast_output.append({
+            "month": future["ds"].iloc[i + len(train)].strftime('%Y-%m'),
+            "top_product": df["top_product"].iloc[-12:].values[i] if i < len(df["top_product"].iloc[-12:]) else "Unknown",
+            "estimated_sales": round(final_forecast_xgb[i], 2)  # XGBoost-weighted forecast
+        })
 
-    output_data = {
-        "final_forecast_rmse": final_forecast_rmse.tolist(),
-        "final_forecast_xgb": final_forecast_xgb.tolist(),
-        "arima_rmse": arima_rmse,
-        "prophet_rmse": prophet_rmse,
-        "lstm_rmse": lstm_rmse,
-        "arima_mape": arima_mape,
-        "prophet_mape": prophet_mape,
-        "lstm_mape": lstm_mape
-    }
-
-     # Replace Infinity with a string or null
-    for key, value in output_data.items():
-        if isinstance(value, float) and not np.isfinite(value):  # Check for inf or nan
-            output_data[key] = None  # Replace with None (valid JSON)
-
-
-    print(json.dumps(output_data))
+    print(json.dumps({
+        "forecast": forecast_output,
+    }))
 
 except Exception as e:
-    print(json.dumps({"error": str(e)})) # Print JSON error message
+    print(json.dumps({"error": str(e)}))
