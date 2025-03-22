@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const forecastSchema = new mongoose.Schema({
-    topProducts: [{ month: String, top_product: String, predicted_sales: Number }],
-    createdAt: { type: Date, default: Date.now }
-});
+    ds: { type: String, required: true }, // 'YYYY-MM'
+    topProduct: { type: String, required: true },
+    y: { type: Number, required: true }
+}, { timestamps: true });
 
 module.exports = mongoose.model("Forecast", forecastSchema);

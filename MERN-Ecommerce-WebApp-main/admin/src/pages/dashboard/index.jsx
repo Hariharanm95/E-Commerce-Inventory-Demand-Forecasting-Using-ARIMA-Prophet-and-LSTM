@@ -51,7 +51,7 @@ const Dashboard = () => {
         setForecastError(null);
 
         try {
-            const response = await API.get("/forecast/run-forecast"); // Using API.get() instead of fetch()
+            const response = await API.get("/forecast/get-forecast"); // Using API.get() instead of fetch()
             setForecastData(response.data); // Accessing response data
         } catch (e) {
             setForecastError(e.message);

@@ -18,9 +18,9 @@ const ForecastTable = ({ data, loading, error }) => {
     const getUpcomingMonths = () => {
         const months = [];
         const now = new Date();
-        const monthNames = ["January", "February", "March", "April", "May", "June", 
-                            "July", "August", "September", "October", "November", "December"];
-        
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+
         for (let i = 0; i < 12; i++) {
             const futureMonth = new Date(now.getFullYear(), now.getMonth() + i, 1);
             const formattedMonth = `${monthNames[futureMonth.getMonth()]} ${futureMonth.getFullYear()}`;
@@ -43,13 +43,14 @@ const ForecastTable = ({ data, loading, error }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.forecast.map((item, index) => (
+                    {data.map((item, index) => (
                         <tr key={index} className={styles.tableRow}>
                             <td className={styles.tableCell}>{upcomingMonths[index]}</td>
-                            <td className={styles.tableCell}>{item.top_product}</td>
-                            <td className={styles.tableCell}>${item.estimated_sales.toFixed(2)}</td>
+                            <td className={styles.tableCell}>{item.topProduct}</td>
+                            <td className={styles.tableCell}>${item.y.toFixed(2)}</td>
                         </tr>
                     ))}
+
                 </tbody>
             </table>
         </div>

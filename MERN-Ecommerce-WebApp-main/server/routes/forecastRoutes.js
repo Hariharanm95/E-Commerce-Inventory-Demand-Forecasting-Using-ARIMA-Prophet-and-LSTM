@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
+const Forecast = require('../models/forecastModel');
 const { runDemandForecast } = require('../services/forecastService'); // Import the forecast service
 
 // Helper function to calculate top-selling product for a given month
@@ -74,20 +75,45 @@ router.get('/monthly-sales', async (req, res) => {
     }
 });
 
-// GET route to run the demand forecast and return results
 router.get('/run-forecast', async (req, res) => {
     try {
         const forecastData = await runDemandForecast();
-        console.log("Forecast Response:", forecastData); // Log output
+
+        if (!forecastData || !forecastData.forecast || !Array.isArray(forecastData.forecast)) {
+            return res.status(400).json({ message: "Invalid forecast data format." });
+        }
+
+        const forecastEntries = forecastData.forecast.map(entry => ({
+            ds: entry.month, // Update key to match the Python script output
+            topProduct: entry.top_product, // Update key
+            y: entry.estimated_sales // Update key
+        }));
+
+        await Forecast.deleteMany({});
+        console.log("Old forecast data deleted.");
+
+        await Forecast.insertMany(forecastEntries);
+        console.log("Forecast data saved successfully:", forecastEntries);
+
+        res.json({ message: "Forecast data generated and saved.", data: forecastEntries });
+    } catch (error) {
+        console.error("Error running demand forecast:", error);
+        res.status(500).json({ message: "Error running demand forecast", error: error.message });
+    }
+});
+
+router.get('/get-forecast', async (req, res) => {
+    try {
+        const forecastData = await Forecast.find().sort({ ds: 1 }); // Sort by month
+
+        if (!forecastData.length) {
+            return res.status(404).json({ message: "No forecast data available" });
+        }
 
         res.json(forecastData);
     } catch (error) {
-        console.error("Error running demand forecast:", error);
-        res.status(500).json({
-            message: "Error running demand forecast",
-            error: error.message,  // Provide actual error details
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
+        console.error("Error fetching forecast data:", error);
+        res.status(500).json({ message: "Error fetching forecast data", error: error.message });
     }
 });
 
