@@ -1,5 +1,5 @@
 .heroSection {
-  background-image: url("../../assets/images/UAHeroImage.png");
+  background-image: url("../../assets/images/EXCLUSIVE.png");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: right;
@@ -9,12 +9,13 @@
   align-items: center;
   position: relative;
   @media (max-width: 768px) {
-    background-image: url("../../assets/images/heroImageSmallScreen.png");
-    background-position: right;
+    background-image: url("../../assets/images/EXCLUSIVE_S.jpg");
+    background-position: center;
     margin-bottom: 300px;
   }
+  
   &__content {
-    margin-left: 40px;
+    margin-left: 180px;
     max-width: 400px;
     @media (max-width: 990px) {
       max-width: 300px;

@@ -47,7 +47,7 @@ const ForecastTable = ({ data, loading, error }) => {
                         <tr key={index} className={styles.tableRow}>
                             <td className={styles.tableCell}>{upcomingMonths[index]}</td>
                             <td className={styles.tableCell}>{item.topProduct}</td>
-                            <td className={styles.tableCell}>${item.y.toFixed(2)}</td>
+                            <td className={styles.tableCell}>₹{item.y.toFixed(2)}</td>
                         </tr>
                     ))}
 

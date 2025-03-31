@@ -78,7 +78,7 @@ const AllOrders = () => {
                   <td>{item._id}</td>
                   <td>{item.userId}</td>
                   <td>{moment(item.createdAt).format("LL")}</td>
-                  <td>${item.total}</td>
+                  <td>₹{item.total}</td>
                   <td className={classes.status}>
                     {/* {item.status} */}
                     <Select
