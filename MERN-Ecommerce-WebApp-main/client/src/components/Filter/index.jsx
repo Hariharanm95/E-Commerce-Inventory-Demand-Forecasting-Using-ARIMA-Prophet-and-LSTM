@@ -148,6 +148,18 @@ const Filter = ({ filters, setFilters, setCategories, categories }) => {
             />
             <label htmlFor="priceLvl4">₹2000 - ₹3000</label>
           </li>
+          <li>
+            <input
+              type="radio"
+              name="price"
+              value="3000-40000"
+              checked={price === "3000-40000"}
+              onChange={handleChange}
+              id="priceLvl5"
+            />
+            <label htmlFor="priceLvl5">Above ₹3000</label>
+          </li>
+
         </ul>
       </div>
     </div>

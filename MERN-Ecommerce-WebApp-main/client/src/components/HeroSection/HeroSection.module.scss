@@ -1,5 +1,5 @@
 .heroSection {
-  background-image: url("../../assets/images/EXCLUSIVE.png");
+  background-image: url("../../assets/images/finalheroslider.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: right;
@@ -15,7 +15,7 @@
   }
   
   &__content {
-    margin-left: 180px;
+    margin-left: 40px;
     max-width: 400px;
     @media (max-width: 990px) {
       max-width: 300px;
